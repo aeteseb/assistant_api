@@ -1,14 +1,17 @@
 import os
 from datetime import datetime, timedelta
-from typing import Annotated, Literal
-from fastapi import Depends, HTTPException, status
+from typing import Annotated
 
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
-from .schemas.users import User, UserInDB, fake_users_db
+from .crud.users import get_user_by_username as get_user
+from .database import get_db
+from .schemas.users import User
 
 SECRET_KEY = os.getenv("SECRET_KEY", "secret")
 ALGORITHM = "HS256"
@@ -56,25 +59,7 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def get_user(db, username: str) -> UserInDB | None:
-    """
-    Returns the user with the specified username.
-
-    Args:
-        db (dict): The database of users.
-        username (str): The username of the user to return.
-
-    Returns:
-        UserInDB | None: The user with the specified username, or None if no user has the specified username.
-    """
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
-
-    return None
-
-
-def authenticate_user(db, username: str, password: str) -> UserInDB | None:
+def authenticate_user(db: Session, username: str, password: str):
     """
     Authenticates the user with the specified username and password.
 
@@ -86,11 +71,11 @@ def authenticate_user(db, username: str, password: str) -> UserInDB | None:
     Returns:
         UserInDB | None: The user with the specified username and password, or None if no user has the specified username or the password is incorrect.
     """
-    user = get_user(db, username)
+    user = get_user(db, username=username)
     if not user:
         return None
 
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user.hashed_password):  # type: ignore
         return None
 
     return user
@@ -119,7 +104,10 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     return encoded_jwt
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Annotated[Session, Depends(get_db)],
+) -> User:
     """
     Returns the current user.
 
@@ -146,11 +134,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
 
     if token_data.username is None:
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(db, username=token_data.username)
     if user is None:
         raise credentials_exception
 
-    return User(**user.model_dump(exclude={"hashed_password"}))
+    return user
 
 
 def get_current_active_user(
@@ -168,7 +156,7 @@ def get_current_active_user(
     Raises:
         HTTPException: If the current user is disabled.
     """
-    if current_user.disabled:
+    if current_user.is_active is False:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
         )

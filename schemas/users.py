@@ -1,22 +1,19 @@
 from pydantic import BaseModel
 
-fake_users_db = {
-    "rick": {
-        "username": "rick",
-        "full_name": "Rick Sanchez",
-        "email": "rick@example.com",
-        "hashed_password": "$2b$12$1kicK/InmKhp6Xkk4vk6/u9k4dcccqpewv0RYU5N7p8C/5yx.ciKy",
-        "disabled": False,
-    },
-}
 
-
-class User(BaseModel):
+class UserBase(BaseModel):
     username: str
-    email: str | None = None
+    email: str
     full_name: str | None = None
-    disabled: bool | None = None
 
 
-class UserInDB(User):
+class UserCreate(UserBase):
     hashed_password: str
+
+
+class User(UserBase):
+    id: int
+    is_active: bool
+
+    class Config:
+        from_attributes = True
