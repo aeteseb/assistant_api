@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, HTTPException, status
@@ -50,7 +50,11 @@ async def login_for_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
 
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+        expires=datetime.today() + access_token_expires,
+    )
 
 
 class OAuth2SignupForm(OAuth2PasswordRequestForm):

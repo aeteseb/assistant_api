@@ -3,7 +3,9 @@ from .. import schemas
 from .. import models
 
 
-def get_user_settings(user_id: int, db: Session) -> schemas.Settings:
+def get_user_settings(user_id: int, db: Session) -> models.Settings:
+    result = db.query(models.Settings).filter(models.Settings.id == user_id).first()
+    print(result)
     return db.query(models.Settings).filter(models.Settings.id == user_id).first()
 
 
@@ -23,7 +25,7 @@ def set_user_setting(
 
 def create_user_settings(db: Session, user_id: int):
     db_settings = models.Settings(
-        user_id=user_id,
+        id=user_id,
     )
     db.add(db_settings)
     db.commit()

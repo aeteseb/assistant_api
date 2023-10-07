@@ -10,7 +10,7 @@ class Setting(BaseModel):
 
 
 class SettingsBase(BaseModel):
-    user_id: int
+    id: int
     theme_mode: str
 
 

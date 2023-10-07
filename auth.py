@@ -21,6 +21,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 300
 class Token(BaseModel):
     access_token: str
     token_type: str
+    expires: datetime
 
 
 class TokenData(BaseModel):
@@ -71,9 +72,11 @@ def authenticate_user(db: Session, username: str, password: str):
     Returns:
         UserInDB | None: The user with the specified username and password, or None if no user has the specified username or the password is incorrect.
     """
+    print(username)
     user = get_user(db, username=username)
     if not user:
         return None
+    print(user)
 
     if not verify_password(password, user.hashed_password):  # type: ignore
         return None

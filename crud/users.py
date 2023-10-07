@@ -42,6 +42,10 @@ def get_user_by_username(db: Session, username: str):
     Returns:
         User | None: The user with the specified username, or None if no user has the specified username.
     """
+    result = db.query(models.User).filter(models.User.username == username).first()
+    print(result)
+    result = db.query(models.User).all()
+    print(result)
     return db.query(models.User).filter(models.User.username == username).first()
 
 

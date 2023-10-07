@@ -65,6 +65,9 @@ async def get_user_settings(
         User: The current authenticated user's settings.
     """
     settings = crud.get_user_settings(current_user.id, db)
+    print("Router:", settings.id, settings.theme_mode)
+    if not settings:
+        settings = crud.create_user_settings(db, current_user.id)
     return settings
 
 
