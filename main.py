@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from dotenv import load_dotenv
+import uvicorn
 
 from . import models
 from .routers import users, auth
@@ -24,3 +25,7 @@ async def root():
         dict: A JSON object with a "message" key and the value "Hello World".
     """
     return {"message": "Hello World"}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

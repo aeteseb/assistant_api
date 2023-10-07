@@ -9,5 +9,6 @@ class Settings(Base):
 
     id = Column(Integer, ForeignKey("users.id"), primary_key=True, index=True)
     theme_mode = Column(String, default="system")
+    theme_color = Column(String, default="lime")
 
     user = relationship("User", back_populates="settings")

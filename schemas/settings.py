@@ -12,6 +12,7 @@ class Setting(BaseModel):
 class SettingsBase(BaseModel):
     id: int
     theme_mode: str
+    theme_color: str
 
 
 class Settings(SettingsBase):

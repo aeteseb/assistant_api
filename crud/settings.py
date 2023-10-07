@@ -13,6 +13,7 @@ def set_user_setting(
     user_id: int, setting: schemas.Setting, db: Session
 ) -> schemas.Setting | None:
     db_settings = get_user_settings(user_id, db)
+    print(db_settings.theme_mode)
     if db_settings is None:
         return None
     if not hasattr(db_settings, setting.key):
