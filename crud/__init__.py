@@ -6,3 +6,4 @@ from .users import (
     get_users,
     get_user_by_username,
 )
+from .meal_plan import get_meal_plans

@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import uvicorn
 
 from . import models
-from .routers import users, auth
+from .routers import users, auth, meal_plan
 from .database import engine
 
 load_dotenv()
@@ -14,6 +14,7 @@ app = FastAPI()
 
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(meal_plan.router)
 
 
 @app.get("/")
