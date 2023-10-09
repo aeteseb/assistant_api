@@ -5,8 +5,9 @@ from .. import models
 
 def get_user_settings(user_id: int, db: Session) -> models.Settings:
     result = db.query(models.Settings).filter(models.Settings.id == user_id).first()
-    print(result)
-    return db.query(models.Settings).filter(models.Settings.id == user_id).first()
+    if result is None:
+        return create_user_settings(db, user_id)
+    return result
 
 
 def set_user_setting(
