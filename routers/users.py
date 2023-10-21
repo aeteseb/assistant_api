@@ -149,6 +149,7 @@ async def patch_all_user_settings(
         User: The current authenticated user's settings.
     """
     for setting, value in settings.model_dump().items():
+        print(setting, value)
         _set_setting_helper(db, current_user.id, Setting(key=setting, value=value))
     return settings
 
