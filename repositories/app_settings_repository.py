@@ -4,12 +4,10 @@ from .. import schemas
 from .. import models
 
 
-def get_user_settings(user_id: int, db: Session) -> schemas.AppSettings:
+def get_user_settings(user_id: int, db: Session) -> models.AppSettings | None:
     result = (
         db.query(schemas.AppSettings).filter(schemas.AppSettings.id == user_id).first()
     )
-    if result is None:
-        raise HTTPException(status_code=404, detail="User settings not found")
     return result
 
 
@@ -34,6 +32,17 @@ def create_app_settings(db: Session, user_id: int, settings: models.AppSettingsC
         theme_color=settings.theme_color,
     )
     db.add(db_settings)
+    db.commit()
+    db.refresh(db_settings)
+    return db_settings
+
+
+def set_app_settings(db: Session, user_id: int, settings: models.AppSettingsCreate):
+    db_settings = get_user_settings(user_id, db)
+    if db_settings is None:
+        return None
+    db_settings.theme_mode = settings.theme_mode
+    db_settings.theme_color = settings.theme_color
     db.commit()
     db.refresh(db_settings)
     return db_settings
