@@ -4,11 +4,12 @@ from assistant_api.core.auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     authenticate_user,
     create_access_token,
+    get_current_active_user,
     get_password_hash,
 )
 from assistant_api.core.database import get_db
 from assistant_api.models.token_models import Token
-from assistant_api.models.user_models import UserCreate
+from assistant_api.models.user_models import User, UserCreate
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr
@@ -107,5 +108,11 @@ async def validate_username(
     Returns:
         bool: Whether the username is valid.
     """
-    print(user_repo.get_user_by_username(db, username) is None)
     return user_repo.get_user_by_username(db, username) is None
+
+
+@router.get("/user-id")
+async def get_user_id(
+    user: Annotated[User, Depends(get_current_active_user)],
+) -> int:
+    return user.id
